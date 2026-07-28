@@ -1,0 +1,7 @@
+{
+  "name": "Karten APp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
