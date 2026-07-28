@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
+import { loadMapStore } from './store/mapStore';
 
 import { IonicVue } from '@ionic/vue';
 
@@ -38,6 +39,6 @@ const app = createApp(App)
   .use(IonicVue)
   .use(router);
 
-router.isReady().then(() => {
+Promise.all([router.isReady(), loadMapStore()]).then(() => {
   app.mount('#app');
 });
