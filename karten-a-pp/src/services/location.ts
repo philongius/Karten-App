@@ -19,9 +19,11 @@ export async function getCurrentPosition(): Promise<Coordinates> {
     // shows its own permission prompt when getCurrentPosition() is called below.
   }
 
+  // Ein "Cold Start" des GPS-Chips (z.B. erste Ortung nach Installation/Geräteneustart,
+  // noch keine Ephemeriden-Daten gecached) kann deutlich länger dauern als ein "warmer" Fix.
   const position = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
-    timeout: 15000,
+    timeout: 45000,
   });
 
   return {

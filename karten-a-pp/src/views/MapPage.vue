@@ -46,8 +46,8 @@
           attribution="&copy; OpenStreetMap-Mitwirkende"
         />
         <l-marker
-          v-if="searchMarker"
-          :lat-lng="[searchMarker.lat, searchMarker.lng]"
+          v-if="mapStore.searchMarker"
+          :lat-lng="[mapStore.searchMarker.lat, mapStore.searchMarker.lng]"
           :icon="searchMarkerIcon"
         />
         <l-marker
@@ -81,7 +81,7 @@ import { locateOutline, flag, man } from 'ionicons/icons';
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { mapStore, addHistoryEntry, consumePendingFocus } from '@/store/mapStore';
+import { mapStore, addHistoryEntry, consumePendingFocus, markGeoHintShown } from '@/store/mapStore';
 import { geocodeAddress, searchAddressSuggestions, type AddressSuggestion } from '@/services/geocoding';
 import { getCurrentPosition } from '@/services/location';
 
@@ -114,7 +114,6 @@ const isSearching = ref(false);
 const isLocating = ref(false);
 const isLoading = ref(false);
 
-const searchMarker = ref<{ lat: number; lng: number } | null>(null);
 const userMarker = ref<{ lat: number; lng: number } | null>(null);
 
 const suggestions = ref<AddressSuggestion[]>([]);
@@ -149,11 +148,11 @@ function applyPendingFocus(): void {
   if (!focus) return;
   mapStore.center = [focus.lat, focus.lng];
   mapStore.zoom = Math.max(mapStore.zoom, 16);
-  searchMarker.value = { lat: focus.lat, lng: focus.lng };
+  mapStore.searchMarker = { lat: focus.lat, lng: focus.lng };
 }
 
 function onClearSearch(): void {
-  searchMarker.value = null;
+  mapStore.searchMarker = null;
   clearSuggestions();
 }
 
@@ -212,7 +211,7 @@ function selectSuggestion(suggestion: AddressSuggestion): void {
   searchQuery.value = suggestion.displayName;
   mapStore.center = [suggestion.lat, suggestion.lng];
   mapStore.zoom = Math.max(mapStore.zoom, 16);
-  searchMarker.value = { lat: suggestion.lat, lng: suggestion.lng };
+  mapStore.searchMarker = { lat: suggestion.lat, lng: suggestion.lng };
   addHistoryEntry({ address: suggestion.displayName, lat: suggestion.lat, lng: suggestion.lng });
 }
 
@@ -231,7 +230,7 @@ async function onSearch(): Promise<void> {
     }
     mapStore.center = [result.lat, result.lng];
     mapStore.zoom = Math.max(mapStore.zoom, 16);
-    searchMarker.value = { lat: result.lat, lng: result.lng };
+    mapStore.searchMarker = { lat: result.lat, lng: result.lng };
     addHistoryEntry({ address: result.displayName, lat: result.lat, lng: result.lng });
   } catch (err) {
     console.error(err);
@@ -243,6 +242,11 @@ async function onSearch(): Promise<void> {
 }
 
 async function onLocate(): Promise<void> {
+  if (!mapStore.geoHintShown) {
+    markGeoHintShown();
+    await presentToast('Erstmalige Standortsuche kann etwas länger dauern.');
+  }
+
   isLocating.value = true;
   syncLoading();
   try {

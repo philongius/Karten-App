@@ -16,6 +16,7 @@ export interface FocusRequest {
 
 const MAP_STATE_KEY = 'map_state';
 const HISTORY_KEY = 'search_history';
+const GEO_HINT_SHOWN_KEY = 'geo_hint_shown';
 const MAX_HISTORY_ENTRIES = 50;
 
 const DEFAULT_CENTER: [number, number] = [51.1657, 10.4515]; // Deutschland
@@ -27,13 +28,18 @@ export const mapStore = reactive({
   history: [] as HistoryEntry[],
   pendingFocus: null as FocusRequest | null,
   loaded: false,
+  geoHintShown: false,
+  searchMarker: null as { lat: number; lng: number } | null,
 });
 
 export async function loadMapStore(): Promise<void> {
-  const [mapRes, historyRes] = await Promise.all([
+  const [mapRes, historyRes, geoHintRes] = await Promise.all([
     Preferences.get({ key: MAP_STATE_KEY }),
     Preferences.get({ key: HISTORY_KEY }),
+    Preferences.get({ key: GEO_HINT_SHOWN_KEY }),
   ]);
+
+  mapStore.geoHintShown = geoHintRes.value === 'true';
 
   if (mapRes.value) {
     try {
@@ -84,6 +90,17 @@ watch(
   },
 );
 
+// Wird beim Pausieren der App aufgerufen, damit eine ausstehende (debounced)
+// Änderung nicht verloren geht, falls Android den Prozess danach beendet.
+export function flushMapState(): void {
+  if (!mapStore.loaded) return;
+  if (persistMapTimeout) {
+    clearTimeout(persistMapTimeout);
+    persistMapTimeout = undefined;
+  }
+  persistMapState();
+}
+
 export function addHistoryEntry(entry: { address: string; lat: number; lng: number }): void {
   const newEntry: HistoryEntry = {
     id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
@@ -95,8 +112,22 @@ export function addHistoryEntry(entry: { address: string; lat: number; lng: numb
 }
 
 export function removeHistoryEntry(id: string): void {
+  const entry = mapStore.history.find((e) => e.id === id);
+  if (
+    entry &&
+    mapStore.searchMarker &&
+    mapStore.searchMarker.lat === entry.lat &&
+    mapStore.searchMarker.lng === entry.lng
+  ) {
+    mapStore.searchMarker = null;
+  }
   mapStore.history = mapStore.history.filter((e) => e.id !== id);
   persistHistory();
+}
+
+export function markGeoHintShown(): void {
+  mapStore.geoHintShown = true;
+  Preferences.set({ key: GEO_HINT_SHOWN_KEY, value: 'true' });
 }
 
 export function requestFocus(focus: FocusRequest): void {
