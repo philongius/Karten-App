@@ -11,6 +11,10 @@ export async function getCurrentPosition(): Promise<Coordinates> {
     if (permission.location === 'denied') {
       throw new Error('PERMISSION_DENIED');
     }
+    // Android hat die frisch erteilte Berechtigung intern teils noch nicht vollständig
+    // propagiert, direkt danach schlägt getCurrentPosition() dann einmalig fehl (bekannter
+    // Plugin-/Plattform-Bug). Eine kurze Pause behebt das zuverlässig.
+    await new Promise((resolve) => setTimeout(resolve, 300));
   } catch (err) {
     if (err instanceof Error && err.message === 'PERMISSION_DENIED') {
       throw err;
@@ -24,6 +28,9 @@ export async function getCurrentPosition(): Promise<Coordinates> {
   const position = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
     timeout: 45000,
+    // Erlaubt einen bis zu 10s alten Fix bei schnell aufeinanderfolgenden Klicks,
+    // statt jedes Mal einen komplett neuen GPS-Fix zu erzwingen.
+    maximumAge: 10000,
   });
 
   return {

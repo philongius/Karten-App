@@ -30,6 +30,7 @@ export const mapStore = reactive({
   loaded: false,
   geoHintShown: false,
   searchMarker: null as { lat: number; lng: number } | null,
+  userMarker: null as { lat: number; lng: number } | null,
 });
 
 export async function loadMapStore(): Promise<void> {
@@ -49,6 +50,13 @@ export async function loadMapStore(): Promise<void> {
       }
       if (typeof parsed.zoom === 'number') {
         mapStore.zoom = parsed.zoom;
+      }
+      if (
+        parsed.userMarker &&
+        typeof parsed.userMarker.lat === 'number' &&
+        typeof parsed.userMarker.lng === 'number'
+      ) {
+        mapStore.userMarker = { lat: parsed.userMarker.lat, lng: parsed.userMarker.lng };
       }
     } catch (err) {
       console.warn('Konnte Kartenzustand nicht laden', err);
@@ -72,7 +80,11 @@ export async function loadMapStore(): Promise<void> {
 function persistMapState(): void {
   Preferences.set({
     key: MAP_STATE_KEY,
-    value: JSON.stringify({ center: mapStore.center, zoom: mapStore.zoom }),
+    value: JSON.stringify({
+      center: mapStore.center,
+      zoom: mapStore.zoom,
+      userMarker: mapStore.userMarker,
+    }),
   });
 }
 
@@ -82,7 +94,13 @@ function persistHistory(): void {
 
 let persistMapTimeout: ReturnType<typeof setTimeout> | undefined;
 watch(
-  () => [mapStore.center[0], mapStore.center[1], mapStore.zoom],
+  () => [
+    mapStore.center[0],
+    mapStore.center[1],
+    mapStore.zoom,
+    mapStore.userMarker?.lat,
+    mapStore.userMarker?.lng,
+  ],
   () => {
     if (!mapStore.loaded) return;
     if (persistMapTimeout) clearTimeout(persistMapTimeout);

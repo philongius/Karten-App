@@ -37,7 +37,8 @@
         style="height: 100%"
         :use-global-leaflet="false"
         v-model:zoom="mapStore.zoom"
-        v-model:center="mapStore.center"
+        :center="mapStore.center"
+        @update:center="onMapCenterUpdate"
         @ready="onMapReady"
       >
         <l-tile-layer
@@ -51,8 +52,8 @@
           :icon="searchMarkerIcon"
         />
         <l-marker
-          v-if="userMarker"
-          :lat-lng="[userMarker.lat, userMarker.lng]"
+          v-if="mapStore.userMarker"
+          :lat-lng="[mapStore.userMarker.lat, mapStore.userMarker.lng]"
           :icon="userMarkerIcon"
         />
       </l-map>
@@ -61,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onBeforeUnmount, ref } from 'vue';
+import { nextTick, onBeforeUnmount, computed, ref } from 'vue';
 import { onIonViewDidEnter, toastController } from '@ionic/vue';
 import {
   IonPage,
@@ -112,16 +113,14 @@ let leafletMap: L.Map | null = null;
 const searchQuery = ref('');
 const isSearching = ref(false);
 const isLocating = ref(false);
-const isLoading = ref(false);
-
-const userMarker = ref<{ lat: number; lng: number } | null>(null);
+const isLoading = computed(() => isSearching.value || isLocating.value);
 
 const suggestions = ref<AddressSuggestion[]>([]);
 let suggestionsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 let suggestionsAbortController: AbortController | null = null;
 
-function syncLoading(): void {
-  isLoading.value = isSearching.value || isLocating.value;
+function onMapCenterUpdate(center: L.LatLng): void {
+  mapStore.center = [center.lat, center.lng];
 }
 
 function onMapReady(map: L.Map): void {
@@ -135,19 +134,24 @@ onIonViewDidEnter(() => {
   applyPendingFocus();
 });
 
-onMounted(() => {
-  applyPendingFocus();
-});
-
 onBeforeUnmount(() => {
   clearSuggestions();
 });
 
+// setView() statt getrennter center-/zoom-Zuweisung: pan + zoom laufen sonst als zwei
+// unsynchronisierte Leaflet-Animationen und die Karte landet nicht exakt auf dem Ziel
+// (sichtbar z.B. nach manuellem Verschieben/Zoomen, wenn der nächste Sprung groß ist).
+function focusMap(lat: number, lng: number): void {
+  const targetZoom = Math.max(mapStore.zoom, 16);
+  leafletMap?.setView([lat, lng], targetZoom);
+  mapStore.center = [lat, lng];
+  mapStore.zoom = targetZoom;
+}
+
 function applyPendingFocus(): void {
   const focus = consumePendingFocus();
   if (!focus) return;
-  mapStore.center = [focus.lat, focus.lng];
-  mapStore.zoom = Math.max(mapStore.zoom, 16);
+  focusMap(focus.lat, focus.lng);
   mapStore.searchMarker = { lat: focus.lat, lng: focus.lng };
 }
 
@@ -209,8 +213,7 @@ async function fetchSuggestions(query: string): Promise<void> {
 function selectSuggestion(suggestion: AddressSuggestion): void {
   clearSuggestions();
   searchQuery.value = suggestion.displayName;
-  mapStore.center = [suggestion.lat, suggestion.lng];
-  mapStore.zoom = Math.max(mapStore.zoom, 16);
+  focusMap(suggestion.lat, suggestion.lng);
   mapStore.searchMarker = { lat: suggestion.lat, lng: suggestion.lng };
   addHistoryEntry({ address: suggestion.displayName, lat: suggestion.lat, lng: suggestion.lng });
 }
@@ -221,15 +224,13 @@ async function onSearch(): Promise<void> {
 
   clearSuggestions();
   isSearching.value = true;
-  syncLoading();
   try {
     const result = await geocodeAddress(query);
     if (!result) {
       await presentToast('Adresse wurde nicht gefunden.');
       return;
     }
-    mapStore.center = [result.lat, result.lng];
-    mapStore.zoom = Math.max(mapStore.zoom, 16);
+    focusMap(result.lat, result.lng);
     mapStore.searchMarker = { lat: result.lat, lng: result.lng };
     addHistoryEntry({ address: result.displayName, lat: result.lat, lng: result.lng });
   } catch (err) {
@@ -237,7 +238,6 @@ async function onSearch(): Promise<void> {
     await presentToast('Fehler bei der Adresssuche.');
   } finally {
     isSearching.value = false;
-    syncLoading();
   }
 }
 
@@ -248,12 +248,10 @@ async function onLocate(): Promise<void> {
   }
 
   isLocating.value = true;
-  syncLoading();
   try {
     const pos = await getCurrentPosition();
-    mapStore.center = [pos.lat, pos.lng];
-    mapStore.zoom = Math.max(mapStore.zoom, 16);
-    userMarker.value = { lat: pos.lat, lng: pos.lng };
+    focusMap(pos.lat, pos.lng);
+    mapStore.userMarker = { lat: pos.lat, lng: pos.lng };
   } catch (err) {
     console.error(err);
     const message =
@@ -263,7 +261,6 @@ async function onLocate(): Promise<void> {
     await presentToast(message);
   } finally {
     isLocating.value = false;
-    syncLoading();
   }
 }
 

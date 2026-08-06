@@ -57,6 +57,10 @@ export async function searchAddressSuggestions(
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=${limit}&q=${encodeURIComponent(trimmed)}`;
   const response = await fetch(url, {
     headers: { Accept: 'application/json' },
+    // Nominatims Nutzungsbedingungen verlangen einen Referer oder User-Agent zur
+    // Identifikation der Anwendung; User-Agent lässt sich über fetch() nicht setzen
+    // (forbidden header), daher wird zumindest der Referer erzwungen.
+    referrerPolicy: 'origin',
     signal: options?.signal,
   });
   if (!response.ok) {
@@ -74,7 +78,10 @@ export async function searchAddressSuggestions(
 
 async function geocodeWithNominatim(query: string): Promise<GeocodeResult | null> {
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    referrerPolicy: 'origin',
+  });
   if (!response.ok) {
     throw new Error(`Geocoding-Anfrage fehlgeschlagen: ${response.status}`);
   }
