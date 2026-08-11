@@ -36,6 +36,7 @@
         ref="mapRef"
         style="height: 100%"
         :use-global-leaflet="false"
+        :no-blocking-animations="true"
         v-model:zoom="mapStore.zoom"
         :center="mapStore.center"
         @update:center="onMapCenterUpdate"
@@ -141,9 +142,12 @@ onBeforeUnmount(() => {
 // setView() statt getrennter center-/zoom-Zuweisung: pan + zoom laufen sonst als zwei
 // unsynchronisierte Leaflet-Animationen und die Karte landet nicht exakt auf dem Ziel
 // (sichtbar z.B. nach manuellem Verschieben/Zoomen, wenn der nächste Sprung groß ist).
+// animate: false, weil sonst zusätzlich zu dieser Animation noch die reaktive
+// center/zoom-Prop-Bindung von vue-leaflet eine zweite, konkurrierende Animation
+// auslöst - das führte gerade nach manuellem Verschieben/Zoomen zu spürbarem Hängen.
 function focusMap(lat: number, lng: number): void {
   const targetZoom = Math.max(mapStore.zoom, 16);
-  leafletMap?.setView([lat, lng], targetZoom);
+  leafletMap?.setView([lat, lng], targetZoom, { animate: false });
   mapStore.center = [lat, lng];
   mapStore.zoom = targetZoom;
 }
