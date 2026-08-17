@@ -6,7 +6,8 @@ https://dhbw-vs-case-study-slides.vercel.app/170
 Ionic/Vue-App mit Leaflet-Karte, Adresssuche und Standort-Ortung. Wird per Capacitor als Android-App (APK) gebaut.
 
 ## Hinweis zur Entwicklung
-Recherche, Planung und und Hilfe bei der Programmierung dieser App erfolgten mit Unterstützung von der Claude KI Extension in VS Code.
+
+Die Claude-Extension in VS Code wurde zur Unterstützung bei der Recherche, bei Syntaxfragen sowie beim Refactoring einzelner Code-Snippets genutzt. Google Gemini kam ergänzend für die Analyse von Fehlermeldungen und zur Unterstützung beim Debugging zum Einsatz.
 
 Auflistung erstellter und bearbeiteten Dateien:
 
