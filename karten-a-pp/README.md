@@ -1,6 +1,22 @@
 # Karten App
 
-Ionic/Vue-App mit Leaflet-Karte, Adresssuche (inkl. Autocomplete über Nominatim) und Standort-Ortung. Wird per Capacitor als Android-App (APK) gebaut.
+Ionic/Vue-App mit Leaflet-Karte, Adresssuche  und Standort-Ortung.
+
+## Hinweis zur Entstehung
+
+Planung und Programmierung dieser App erfolgten mit Unterstützung von Claude (KI-Assistent von Anthropic).
+
+Gemeinsam erstellte bzw. bearbeitete Kern-Dateien:
+
+- `src/views/MapPage.vue` – Kartenansicht (Leaflet), Standort-Ortung, Marker, Kartenanimation
+- `src/views/HistoryPage.vue` – Verlauf der gesuchten Standorte
+- `src/views/TabsPage.vue` – Tab-Navigation
+- `src/services/geocoding.ts` – Adresssuche / Autocomplete
+- `src/services/location.ts` – Geräte-Standortermittlung
+- `src/store/mapStore.ts` – Zustandsverwaltung (aktueller Standort, Verlauf, Marker)
+- `src/App.vue`, `src/main.ts`, `src/router/index.ts` – App-Grundgerüst
+- `capacitor.config.ts` – Capacitor-Konfiguration (Android-Build)
+- `README.md` – diese Dokumentation
 
 ## Voraussetzungen
 
@@ -56,7 +72,6 @@ cd android
 
 Ausgabe: **`android/app/build/outputs/apk/release/kartenapp-release.apk`**
 
-Die App heißt intern weiterhin `io.ionic.starter` (Package-/Application-ID), die APK-Datei selbst ist aber auf `kartenapp-debug.apk` / `kartenapp-release.apk` umbenannt (siehe `outputFileName` in `android/app/build.gradle`).
 
 #### Signing-Konfiguration (Keystore)
 
