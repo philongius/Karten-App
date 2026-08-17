@@ -82,11 +82,3 @@ Die Release-APK wird automatisch mit einem eigenen Release-Keystore signiert:
 **Beide Dateien sind bewusst in `.gitignore` (`android/.gitignore`) und werden nicht eingecheckt.**
 
 Falls `keystore.properties` fehlt (z. B. auf einem frischen Rechner ohne den Keystore), baut `assembleRelease` weiterhin eine APK, diese ist dann aber **unsigniert** und lässt sich nicht direkt installieren.
-
-## APK auf ein Gerät installieren
-
-```bash
-adb install -r android/app/build/outputs/apk/release/kartenapp-release.apk
-```
-
-(`-r` ersetzt eine ggf. vorhandene ältere Installation.)
