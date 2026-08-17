@@ -7,15 +7,15 @@ Recherche, Planung und und Hilfe bei der Programmierung dieser App erfolgten mit
 
 Auflistung erstellter und bearbeiteten Dateien:
 
-- `src/views/MapPage.vue` – Kartenansicht (Leaflet), Standort-Ortung, Marker, Kartenanimation
-- `src/views/HistoryPage.vue` – Verlauf der gesuchten Standorte
-- `src/views/TabsPage.vue` – Tab-Navigation
-- `src/services/geocoding.ts` – Adresssuche / Autocomplete
-- `src/services/location.ts` – Geräte-Standortermittlung
-- `src/store/mapStore.ts` – Zustandsverwaltung (aktueller Standort, Verlauf, Marker)
+- `src/views/MapPage.vue` - Kartenansicht (Leaflet), Standort-Ortung, Marker, Kartenanimation
+- `src/views/HistoryPage.vue` - Verlauf der gesuchten Standorte
+- `src/views/TabsPage.vue` - Tab-Navigation
+- `src/services/geocoding.ts` - Adresssuche / Autocomplete
+- `src/services/location.ts` - Geräte-Standortermittlung
+- `src/store/mapStore.ts` - Zustandsverwaltung (aktueller Standort, Verlauf, Marker)
 - `src/App.vue`, `src/main.ts`, `src/router/index.ts` – App-Grundgerüst
-- `capacitor.config.ts` – Capacitor-Konfiguration (Android-Build)
-- `README.md` – diese Dokumentation
+- `capacitor.config.ts` - Capacitor-Konfiguration (Android-Build)
+- `README.md` - diese Dokumentation
 
 ## Voraussetzungen
 
