@@ -82,8 +82,6 @@ Die Release-APK wird automatisch mit einem eigenen Release-Keystore signiert:
 
 **Beide Dateien sind bewusst in `.gitignore` (`android/.gitignore`) und werden nicht eingecheckt.**
 
-⚠️ **Wichtig:** Ohne diesen Keystore lassen sich künftige Updates der App auf Geräten, auf denen sie schon installiert ist, nicht mehr über eine neue APK aktualisieren (Android verlangt dieselbe Signatur wie beim Erstinstall). Keystore-Datei und `keystore.properties` daher **sicher und separat vom Git-Repo sichern** (z. B. Passwort-Manager / verschlüsseltes Backup). Geht der Keystore verloren, muss die App auf allen Testgeräten deinstalliert und mit einem neuen Keystore neu installiert werden.
-
 Falls `keystore.properties` fehlt (z. B. auf einem frischen Rechner ohne den Keystore), baut `assembleRelease` weiterhin eine APK, diese ist dann aber **unsigniert** und lässt sich nicht direkt installieren.
 
 ## APK auf ein Gerät installieren
