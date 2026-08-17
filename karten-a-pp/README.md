@@ -2,8 +2,7 @@
 
 Ionic/Vue-App mit Leaflet-Karte, Adresssuche  und Standort-Ortung.
 
-## Hinweis zur Entstehung
-
+## Hinweis zur Entwicklung
 Recherche, Planung und Programmierung dieser App erfolgten mit Unterstützung von der Claude KI Extension in VS Code.
 
 Gemeinsam erstellte bzw. bearbeitete Kern-Dateien:
