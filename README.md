@@ -1,4 +1,4 @@
-# Fallstudie_Genz
+# Fallstudie
 https://dhbw-vs-case-study-slides.vercel.app/170
 
 # Karten App
