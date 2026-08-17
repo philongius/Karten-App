@@ -9,7 +9,7 @@ Ionic/Vue-App mit Leaflet-Karte, Adresssuche und Standort-Ortung. Wird per Capac
 
 Die Claude-Extension in VS Code wurde zur Unterstützung bei der Recherche, bei Syntaxfragen sowie beim Refactoring einzelner Code-Snippets genutzt. Google Gemini kam ergänzend für die Analyse von Fehlermeldungen und zur Unterstützung beim Debugging zum Einsatz.
 
-Auflistung erstellter und bearbeiteten Dateien:
+Auflistung bearbeitete Dateien:
 
 - `src/views/MapPage.vue` - Kartenansicht (Leaflet), Standort-Ortung, Marker, Kartenanimation
 - `src/views/HistoryPage.vue` - Verlauf der gesuchten Standorte
@@ -74,8 +74,6 @@ cd android
 ```
 
 Ausgabe: **`android/app/build/outputs/apk/release/kartenapp-release.apk`**
-
-Die App heißt intern weiterhin `io.ionic.starter` (Package-/Application-ID), die APK-Datei selbst ist aber auf `kartenapp-debug.apk` / `kartenapp-release.apk` umbenannt (siehe `outputFileName` in `android/app/build.gradle`).
 
 #### Signing-Konfiguration (Keystore)
 
